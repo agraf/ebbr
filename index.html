@@ -1,0 +1,982 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Embedded Base Boot Requirements (EBBR) Specification unknown-rev documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="embedded-base-boot-requirements-ebbr-specification">
+<h1>Embedded Base Boot Requirements (EBBR) Specification<a class="headerlink" href="#embedded-base-boot-requirements-ebbr-specification" title="Permalink to this headline">¶</a></h1>
+<p>Copyright © 2017-2018 Arm Limited and Contributors.</p>
+<p>This work is licensed under the Creative Commons Attribution-ShareAlike 4.0
+International License. To view a copy of this license, visit
+<a class="reference external" href="http://creativecommons.org/licenses/by-sa/4.0/">http://creativecommons.org/licenses/by-sa/4.0/</a> or send a letter to
+Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.</p>
+<a class="reference external image-reference" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" class="align-right" src="_images/cc-by-sa-4.0-88x31.png" /></a>
+<table border="1" class="docutils" id="id5">
+<caption><span class="caption-text">Revision History</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="7%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Date</th>
+<th class="head">Issue</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>20 September 2017</td>
+<td>B</td>
+<td>Confidentiality Change, EBBR version 0.51</td>
+</tr>
+<tr class="row-odd"><td>TBD</td>
+<td>TBD</td>
+<td><ul class="first last simple">
+<li>Relicense to CC-BY-SA 4.0</li>
+<li>Added Devicetree requirements</li>
+<li>Added Multiprocessor boot requirements</li>
+<li>Transitioned to reStructuredText and GitHub</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="about-this-document">
+<h2>About This Document<a class="headerlink" href="#about-this-document" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="introduction">
+<h3>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h3>
+<p>This Embedded Base Boot Requirements (EBBR) specification is intended for Arm
+embedded devices that want to take advantage of the UEFI technology to separate
+the firmware and OS development.
+For example, class-A embedded devices like networking platforms can benefit
+from a standard interface that supports features such as secure boot and
+firmware update.</p>
+<p>This specification defines the base firmware requirements if UEFI is chosen.
+The requirements in this specification are expected to be minimal yet complete,
+while leaving plenty of room for innovations and design details.
+This specification is intended to be OS-neutral.
+It leverages the prevalent industry standard firmware specifications of UEFI.</p>
+<p>Comments or change requests can be sent to <a class="reference external" href="mailto:arm&#46;ebbr-discuss&#37;&#52;&#48;arm&#46;com">arm<span>&#46;</span>ebbr-discuss<span>&#64;</span>arm<span>&#46;</span>com</a>.</p>
+</div>
+<div class="section" id="scope">
+<h3>Scope<a class="headerlink" href="#scope" title="Permalink to this headline">¶</a></h3>
+<p>This document defines the boot and runtime services that are expected by an
+Operating System or hypervisor, for an Arm embedded device, which follows the
+UEFI specification.</p>
+<p>This specification defines the boot and runtime services for a physical system,
+including services that are required for virtualization.
+It does not define a standardized abstract virtual machine view for a Guest
+Operating System.</p>
+<p>This specification is similar to the Arm Server Base Boot Requirements
+specification[<a class="reference internal" href="#sbbr">SBBR</a>] in that it defines the firmware interface presented to an
+operating system, with SBBR having stricter requirements on hardware and
+firmware than EBBR.
+EBBR allows for design decisions that are common in the embedded space, but not
+supported by the server ecosystem.
+For example, an embedded system may use a single eMMC storage device to hold
+both firmware and operating system images.
+By definition, all SBBR compliant systems are also EBBR compliant, but the
+converse is not true.</p>
+</div>
+<div class="section" id="cross-references">
+<h3>Cross References<a class="headerlink" href="#cross-references" title="Permalink to this headline">¶</a></h3>
+<p>This document cross-references sources that are listed in the References
+section by using the section sign §.</p>
+<p>Examples:</p>
+<p>UEFI § 6.1 - Reference to the UEFI specification <a class="reference internal" href="#id3" id="id1">[UEFI]</a> section 6.1</p>
+</div>
+<div class="section" id="terms-and-abbreviations">
+<h3>Terms and abbreviations<a class="headerlink" href="#terms-and-abbreviations" title="Permalink to this headline">¶</a></h3>
+<p>This document uses the following terms and abbreviations.</p>
+<dl class="glossary docutils">
+<dt id="term-a64">A64</dt>
+<dd>The 64-bit Arm instruction set used in AArch64 state.
+All A64 instructions are 32 bits.</dd>
+<dt id="term-aarch64-state">AArch64 state</dt>
+<dd>The Arm 64-bit Execution state that uses 64-bit general purpose
+registers, and a 64-bit program counter (PC), Stack Pointer (SP), and
+exception link registers (ELR).</dd>
+<dt id="term-aarch64">AArch64</dt>
+<dd>Execution state provides a single instruction set, A64.</dd>
+<dt id="term-efi-loaded-image">EFI Loaded Image</dt>
+<dd>An executable image to be run under the UEFI environment,
+and which uses boot time services.</dd>
+<dt id="term-el0">EL0</dt>
+<dd>The lowest Exception level. The Exception level that is used to execute
+user applications, in Non-secure state.</dd>
+<dt id="term-el1">EL1</dt>
+<dd>Privileged Exception level. The Exception level that is used to execute
+Operating Systems, in Non-secure state.</dd>
+<dt id="term-el2">EL2</dt>
+<dd>Hypervisor Exception level. The Exception level that is used to execute
+hypervisor code. EL2 is always in Non-secure state.</dd>
+<dt id="term-el3">EL3</dt>
+<dd>Secure Monitor Exception level. The Exception level that is used to
+execute Secure Monitor code, which handles the transitions between
+Non-secure and Secure states.  EL3 is always in Secure state.</dd>
+<dt id="term-oem">OEM</dt>
+<dd>Original Equipment Manufacturer. In this document, the final device
+manufacturer.</dd>
+<dt id="term-sip">SiP</dt>
+<dd>Silicon Partner. In this document, the silicon manufacturer.</dd>
+<dt id="term-uefi">UEFI</dt>
+<dd>Unified Extensible Firmware Interface.</dd>
+<dt id="term-uefi-boot-services">UEFI Boot Services</dt>
+<dd>Functionality that is provided to UEFI Loaded Images during the UEFI boot
+process.</dd>
+<dt id="term-uefi-runtime-services">UEFI Runtime Services</dt>
+<dd>Functionality that is provided to an Operating System after the
+ExitBootServices() call.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="uefi">
+<h2>UEFI<a class="headerlink" href="#uefi" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="uefi-version">
+<h3>UEFI Version<a class="headerlink" href="#uefi-version" title="Permalink to this headline">¶</a></h3>
+<p>Boot and system firmware for Arm embedded devices can be based on the UEFI
+specification[<a class="reference internal" href="#id3">UEFI</a>], version 2.7 or later, incorporating the AArch64 bindings.</p>
+</div>
+<div class="section" id="uefi-compliance">
+<h3>UEFI Compliance<a class="headerlink" href="#uefi-compliance" title="Permalink to this headline">¶</a></h3>
+<p>Any UEFI-compliant system must follow the requirements that are laid out in
+section 2.6 of the UEFI specification[<a class="reference internal" href="#id3">UEFI</a>].
+However, to ensure a common boot architecture for embedded-class, systems
+compliant with this specification must always provide the UEFI services and
+protocols that are listed in Appendix A, Appendix B, and Appendix C of this
+document.</p>
+</div>
+<div class="section" id="uefi-system-environment-and-configuration">
+<h3>UEFI System Environment and Configuration<a class="headerlink" href="#uefi-system-environment-and-configuration" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="aarch64-exception-levels">
+<h4>AArch64 Exception Levels<a class="headerlink" href="#aarch64-exception-levels" title="Permalink to this headline">¶</a></h4>
+<p>The resident AArch64 UEFI boot-time environment is specified to “Use the
+highest 64-bit Non-secure privilege level available”.
+This level is either EL1 or EL2, depending on whether or not virtualization is
+used or supported.</p>
+<p>Resident UEFI firmware might target a specific Exception level.
+In contrast, UEFI Loaded Images, such as thirdparty drivers and boot
+applications, must not contain any built-in assumptions that they are to be
+loaded at a given Exception level during boot time, since they can legitimately
+be loaded into EL1 or EL2.</p>
+<div class="section" id="uefi-boot-at-el2">
+<h5>UEFI Boot at EL2<a class="headerlink" href="#uefi-boot-at-el2" title="Permalink to this headline">¶</a></h5>
+<p>Most systems are expected to boot UEFI at EL2, to allow for the installation of
+a hypervisor or a virtualization aware Operating System.</p>
+</div>
+<div class="section" id="uefi-boot-at-el1">
+<h5>UEFI Boot at EL1<a class="headerlink" href="#uefi-boot-at-el1" title="Permalink to this headline">¶</a></h5>
+<p>Booting of UEFI at EL1 is most likely within a hypervisor hosted Guest
+Operating System environment, to allow the subsequent booting of a
+UEFI-compliant Operating System.
+In this instance, the UEFI boot-time environment can be provided, as a
+virtualized service, by the hypervisor and not as part of the host firmware.</p>
+</div>
+</div>
+<div class="section" id="system-volume-format">
+<h4>System Volume Format<a class="headerlink" href="#system-volume-format" title="Permalink to this headline">¶</a></h4>
+<p>The system firmware must support all partitioning standards required
+by the UEFI specification.</p>
+<p>On systems where the system firmware binaries reside on the System Volume then
+the System Volume must be pre-configured with a partition table and include
+protective partitions to reduce risk of accidental destruction of the system
+firmware.</p>
+<p>All pre-installed partition tables must use GPT partitioning unless
+some immutable feature of the platform (such as a mask programmed boot ROM)
+makes this impossible; on such platforms MBR partitioning may be
+used as an alternative.</p>
+<div class="section" id="gpt-partitioning">
+<h5>GPT partitioning<a class="headerlink" href="#gpt-partitioning" title="Permalink to this headline">¶</a></h5>
+<p>Any pre-installed partition table must strictly conform to the UEFI
+specification and include a protective MBR authored exactly as
+described in UEFI specification (hybrid partitioning schemes are not
+permitted).</p>
+<p>Pre-installed protective partitions must have the Platform Required
+Attribute Flag set.</p>
+<p>It is recommended that automatic system disk partitioning utilities
+preserve Platform Required partitions as is, and that manual disk
+partitioning utilities provide warnings and/or other safe guards to
+reduce risk of accidental removal.</p>
+</div>
+<div class="section" id="mbr-partitioning">
+<h5>MBR partitioning<a class="headerlink" href="#mbr-partitioning" title="Permalink to this headline">¶</a></h5>
+<p>Pre-installed protective partitions should have a partition type of 0xF8
+unless some immutable feature of the platform makes this impossible.</p>
+<p>It is recommended that disk partitioning utilities treat such
+partitions in the same manner as GPT partitions with the Platform
+Required Attribute Flag set.</p>
+<p>It is recommended that pre-installed protective partitions that are not
+type 0xF8 be located wholly within 1MB of the start of the disk.</p>
+<p>Automatic disk partitioning utilities shall not create partitions
+within 1MB of the start of the disk. Manual disk partitioning
+utilities should avoid recommending that partitions start within
+1MB of the start of the disk.</p>
+</div>
+</div>
+</div>
+<div class="section" id="uefi-boot-services">
+<h3>UEFI Boot Services<a class="headerlink" href="#uefi-boot-services" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="memory-map">
+<h4>Memory Map<a class="headerlink" href="#memory-map" title="Permalink to this headline">¶</a></h4>
+<p>The UEFI environment must provide a system memory map, which must include all
+appropriate devices and memories that are required for booting and system
+configuration.</p>
+<p>All RAM defined by the UEFI memory map must be identity-mapped, which means
+that virtual addresses must equal physical addresses.</p>
+<p>The default RAM allocated attribute must be EFI_MEMORY_WB.</p>
+</div>
+<div class="section" id="uefi-loaded-images">
+<h4>UEFI Loaded Images<a class="headerlink" href="#uefi-loaded-images" title="Permalink to this headline">¶</a></h4>
+<p>UEFI loaded images for AArch64 must be in 64-bit PE/COFF format and must
+contain only A64 code.</p>
+</div>
+<div class="section" id="configuration-tables">
+<h4>Configuration Tables<a class="headerlink" href="#configuration-tables" title="Permalink to this headline">¶</a></h4>
+<p>A UEFI system that complies with this specification may provide the additional
+tables via the EFI Configuration Table.</p>
+<p>Compliant systems are required to provide one, but not both, of the following
+tables.</p>
+<ul class="simple">
+<li>An Advanced Configuration and Power Interface[<a class="reference internal" href="#acpi">ACPI</a>] table, or</li>
+<li>a Devicetree[<a class="reference internal" href="#dtspec">DTSPEC</a>] system description</li>
+</ul>
+<p>As stated above, EBBR systems must not provide both ACPI and Devicetree
+tables at the same time.
+Systems that support both interfaces must provide a configuration
+mechanism to select either ACPI or Devicetree,
+and must ensure only the selected interface is provided to the OS loader.</p>
+</div>
+<div class="section" id="uefi-secure-boot-optional">
+<h4>UEFI Secure Boot (Optional)<a class="headerlink" href="#uefi-secure-boot-optional" title="Permalink to this headline">¶</a></h4>
+<p>UEFI Secure Boot is optional for this specification.</p>
+<p>If Secure Boot is implemented, it must conform to the UEFI specification for Secure Boot. There are no additional
+requirements for Secure Boot.</p>
+</div>
+</div>
+<div class="section" id="uefi-runtime-services">
+<h3>UEFI Runtime Services<a class="headerlink" href="#uefi-runtime-services" title="Permalink to this headline">¶</a></h3>
+<p>UEFI Runtime Services exist after the call to ExitBootServices() and are
+designed to provide a limited set of persistent services to the platform
+Operating System or hypervisor.</p>
+<p>The Runtime Services that are listed in Appendix B must be provided.</p>
+<div class="section" id="runtime-exception-level">
+<h4>Runtime Exception Level<a class="headerlink" href="#runtime-exception-level" title="Permalink to this headline">¶</a></h4>
+<p>UEFI 2.7 enables runtime services to be supported at either EL1 or EL2, with
+appropriate virtual address mappings.
+When called, subsequent runtime service calls must be from the same Exception
+level.</p>
+</div>
+<div class="section" id="runtime-memory-map">
+<h4>Runtime Memory Map<a class="headerlink" href="#runtime-memory-map" title="Permalink to this headline">¶</a></h4>
+<p>Before calling ExitBootServices(), the final call to GetMemoryMap() returns a
+description of the entire UEFI memory map, that includes the persistent Runtime
+Services mappings.</p>
+<p>After the call to ExitBootServices(), the Runtime Services page mappings can be
+relocated in virtual address space by calling SetVirtualAddressMap().
+This call allows the Runtime Services to assign virtual addresses that are
+compatible with the incoming Operating System memory map.</p>
+<p>A UEFI runtime environment compliant with this specification must not be
+written with any assumption of an identity mapping between virtual and physical
+memory maps.</p>
+<p>UEFI operates with a 4K page size. With Runtime Services, these pages are
+mapped into the Operating System address space.</p>
+<p>To allow Operating Systems to use 64K page mappings, UEFI 2.7, constrains all
+mapped 4K memory pages to have identical page attributes, within the same
+physical 64K page.</p>
+</div>
+<div class="section" id="real-time-clock">
+<h4>Real-time Clock<a class="headerlink" href="#real-time-clock" title="Permalink to this headline">¶</a></h4>
+<p>The Real-time Clock must be accessible via the UEFI runtime firmware, and the
+following services must be provided:</p>
+<ul class="simple">
+<li>GetTime()</li>
+<li>SetTime()</li>
+</ul>
+<p>It is permissible for SetTime() to return an error on systems where the
+Real-time Clock cannot be set by this call.</p>
+</div>
+<div class="section" id="uefi-reset-and-shutdown">
+<h4>UEFI Reset and Shutdown<a class="headerlink" href="#uefi-reset-and-shutdown" title="Permalink to this headline">¶</a></h4>
+<p>The UEFI Runtime service ResetSystem() must implement the following commands,
+for purposes of power management and system control.</p>
+<ul class="simple">
+<li>EfiResetCold()</li>
+<li>EfiResetShutdown()
+* EfiResetShutdown must not reboot the system.</li>
+</ul>
+<p>If firmware updates are supported through the Runtime Service of
+UpdateCapsule(), then ResetSystem() might need to support the following
+command:</p>
+<ul class="simple">
+<li>EfiWarmReset()</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">On platforms implementing the Power State Coordination Interface
+specification[<a class="reference internal" href="#psci">PSCI</a>], it is still required that EBBR compliant
+Operating Systems calls to reset the system will go via Runtime Services
+and not directly to PSCI.</p>
+</div>
+</div>
+<div class="section" id="set-variable">
+<h4>Set Variable<a class="headerlink" href="#set-variable" title="Permalink to this headline">¶</a></h4>
+<p>Non-volatile UEFI variables must persist across reset, and emulated variables
+in RAM are not permitted.
+The UEFI Runtime Services must be able to update the variables directly without
+the aid of the Operating System.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This normally requires dedicated storage for UEFI variables that is
+not directly accessible from the Operating System.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="priviledged-or-secure-firmware">
+<h2>Priviledged or Secure Firmware<a class="headerlink" href="#priviledged-or-secure-firmware" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="multiprocessor-startup-protocol">
+<h3>Multiprocessor Startup Protocol<a class="headerlink" href="#multiprocessor-startup-protocol" title="Permalink to this headline">¶</a></h3>
+<p>Firmware resident in Trustzone EL3 must implement and conform to the
+Power State Coordination Interface specification[<a class="reference internal" href="#psci">PSCI</a>].</p>
+<p>Platforms without EL3 must implement one of:</p>
+<ul class="simple">
+<li>PSCI at EL2 (leaving only EL1 available to an operating system)</li>
+<li>Linux AArch64 spin tables[<a class="reference internal" href="#linuxa64boot">LINUXA64BOOT</a>] (Devicetree only)</li>
+</ul>
+<p>However, the spin table protocol is strongly discouraged.
+Future versions of this specification will only allow PSCI, and PSCI should
+be implemented in all new designs.</p>
+</div>
+</div>
+<div class="section" id="appendix-a-required-uefi-boot-services">
+<h2>APPENDIX A - Required UEFI Boot Services<a class="headerlink" href="#appendix-a-required-uefi-boot-services" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_RAISE_TPL</td>
+<td>7.1</td>
+</tr>
+<tr class="row-odd"><td>EFI_RESTORE_TPL</td>
+<td>7.1</td>
+</tr>
+<tr class="row-even"><td>EFI_ALLOCATE_PAGES</td>
+<td>7.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_FREE_PAGES</td>
+<td>7.2</td>
+</tr>
+<tr class="row-even"><td>EFI_GET_MEMORY_MAP</td>
+<td>7.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_ALLOCATE_POOL</td>
+<td>7.2</td>
+</tr>
+<tr class="row-even"><td>EFI_FREE_POOL</td>
+<td>7.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_CREATE_EVENT</td>
+<td>7.1</td>
+</tr>
+<tr class="row-even"><td>EFI_SET_TIMER</td>
+<td>7.1</td>
+</tr>
+<tr class="row-odd"><td>EFI_WAIT_FOR_EVENT</td>
+<td>7.1</td>
+</tr>
+<tr class="row-even"><td>EFI_SIGNAL_EVENT</td>
+<td>7.1</td>
+</tr>
+<tr class="row-odd"><td>EFI_CLOSE_EVENT</td>
+<td>7.1</td>
+</tr>
+<tr class="row-even"><td>EFI_INSTALL_PROTOCOL_INTERFACE</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_REINSTALL_PROTOCOL_INTERFACE</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_UNINSTALL_PROTOCOL_INTERFACE</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_HANDLE_PROTOCOL</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_REGISTER_PROTOCOL_NOTIFY</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_LOCATE_HANDLE</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_LOCATE_PROTOCOL</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_LOCATE_DEVICE_PATH</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_INSTALL_CONFIGURATION_TABLE</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_IMAGE_LOAD</td>
+<td>7.4</td>
+</tr>
+<tr class="row-even"><td>EFI_IMAGE_START</td>
+<td>7.4</td>
+</tr>
+<tr class="row-odd"><td>EFI_EXIT</td>
+<td>7.4</td>
+</tr>
+<tr class="row-even"><td>EFI_IMAGE_UNLOAD</td>
+<td>7.4</td>
+</tr>
+<tr class="row-odd"><td>EFI_EXIT_BOOT_SERVICES</td>
+<td>7.4</td>
+</tr>
+<tr class="row-even"><td>EFI_GET_NEXT_MONOTONIC_COUNT</td>
+<td>7.5</td>
+</tr>
+<tr class="row-odd"><td>EFI_STALL</td>
+<td>7.5</td>
+</tr>
+<tr class="row-even"><td>EFI_SET_WATCHDOG_TIMER</td>
+<td>7.5</td>
+</tr>
+<tr class="row-odd"><td>EFI_CONNECT_CONTROLLER</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_DISCONNECT_CONTROLLER</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_OPEN_PROTOCOL</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_CLOSE_PROTOCOL</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_OPEN_PROTOCOL_INFORMATION</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_PROTOCOLS_PER_HANDLE</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_LOCATE_HANDLE_BUFFER</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_LOCATE_PROTOCOL</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_INSTALL_MULTIPLE_PROTOCOL_INTERFACES</td>
+<td>7.3</td>
+</tr>
+<tr class="row-even"><td>EFI_UNINSTALL_MULTIPLE_PROTOCOL_INTERFACES</td>
+<td>7.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_CALCULATE_CRC32</td>
+<td>7.5</td>
+</tr>
+<tr class="row-even"><td>EFI_COPY_MEM</td>
+<td>7.5</td>
+</tr>
+<tr class="row-odd"><td>EFI_SET_MEM</td>
+<td>7.5</td>
+</tr>
+<tr class="row-even"><td>EFI_CREATE_EVENT_EX</td>
+<td>7.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="appendix-b-required-uefi-runtime-services">
+<h2>APPENDIX B - Required UEFI Runtime Services<a class="headerlink" href="#appendix-b-required-uefi-runtime-services" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_GET_TIME</td>
+<td>8.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_SET_TIME</td>
+<td>8.3</td>
+</tr>
+<tr class="row-even"><td>EFI_GET_WAKEUP_TIME</td>
+<td>8.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_SET_WAKEUP_TIME</td>
+<td>8.3</td>
+</tr>
+<tr class="row-even"><td>EFI_SET_VIRTUAL_ADDRESS_MAP</td>
+<td>8.4</td>
+</tr>
+<tr class="row-odd"><td>EFI_CONVERT_POINTER</td>
+<td>8.4</td>
+</tr>
+<tr class="row-even"><td>EFI_GET_VARIABLE</td>
+<td>8.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_GET_NEXT_VARIABLE_NAME</td>
+<td>8.2</td>
+</tr>
+<tr class="row-even"><td>EFI_SET_VARIABLE</td>
+<td>8.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_GET_NEXT_HIGH_MONO_COUNT</td>
+<td>8.5</td>
+</tr>
+<tr class="row-even"><td>EFI_RESET_SYSTEM</td>
+<td>8.5</td>
+</tr>
+<tr class="row-odd"><td>EFI_UPDATE_CAPSULE</td>
+<td>8.5</td>
+</tr>
+<tr class="row-even"><td>EFI_QUERY_CAPSULE_CAPABILITIES</td>
+<td>8.5</td>
+</tr>
+<tr class="row-odd"><td>EFI_QUERY_VARIABLE_INFO</td>
+<td>8.5</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">EFI_GET_WAKEUP_TIME and EFI_SET_WAKEUP_TIME must be implemented, but
+might simply return EFI_UNSUPPORTED.</p>
+</div>
+</div>
+<div class="section" id="appendix-c-required-uefi-protocols">
+<h2>APPENDIX C - Required UEFI Protocols<a class="headerlink" href="#appendix-c-required-uefi-protocols" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="core-uefi-protocols">
+<h3>Core UEFI Protocols<a class="headerlink" href="#core-uefi-protocols" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_LOADED_IMAGE_PROTOCOL</td>
+<td>9.1</td>
+</tr>
+<tr class="row-odd"><td>EFI_LOADED_IMAGE_DEVICE_PATH_PROTOCOL</td>
+<td>9.2</td>
+</tr>
+<tr class="row-even"><td>EFI_DECOMPRESS_PROTOCOL</td>
+<td>19.5</td>
+</tr>
+<tr class="row-odd"><td>EFI_DEVICE_PATH_PROTOCOL</td>
+<td>10.2</td>
+</tr>
+<tr class="row-even"><td>EFI_DEVICE_PATH_UTILITIES_PROTOCOL</td>
+<td>10.3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="media-i-o-protocols">
+<h3>Media I/O Protocols<a class="headerlink" href="#media-i-o-protocols" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_LOAD_FILE2_PROTOCOL</td>
+<td>13.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_SIMPLE_FILE_SYSTEM_PROTOCOL</td>
+<td>13.4</td>
+</tr>
+<tr class="row-even"><td>EFI_FILE_PROTOCOL</td>
+<td>13.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="console-protocols">
+<h3>Console Protocols<a class="headerlink" href="#console-protocols" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_SIMPLE_TEXT_INPUT_PROTOCOL</td>
+<td>12.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL</td>
+<td>12.3</td>
+</tr>
+<tr class="row-even"><td>EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL</td>
+<td>12.4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="driver-configuration-protocols">
+<h3>Driver Configuration Protocols<a class="headerlink" href="#driver-configuration-protocols" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_HII_DATABASE_PROTOCOL</td>
+<td>33.4</td>
+</tr>
+<tr class="row-odd"><td>EFI_HII_STRING_PROTOCOL</td>
+<td>33.4</td>
+</tr>
+<tr class="row-even"><td>EFI_HII_CONFIG_ROUTING_PROTOCOL</td>
+<td>33.4</td>
+</tr>
+<tr class="row-odd"><td>EFI_HII_CONFIG_ACCESS_PROTOCOL</td>
+<td>33.4</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="appendix-d-optional-uefi-protocols">
+<h2>APPENDIX D - Optional UEFI Protocols<a class="headerlink" href="#appendix-d-optional-uefi-protocols" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic-networking-support">
+<h3>Basic Networking Support<a class="headerlink" href="#basic-networking-support" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="12%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_SIMPLE_NETWORK_PROTOCOL</td>
+<td>24.1</td>
+</tr>
+<tr class="row-odd"><td>EFI_MANAGED_NETWORK_PROTOCOL</td>
+<td>25.1</td>
+</tr>
+<tr class="row-even"><td>EFI_MANAGED_NETWORK_SERVICE_BINDING_PROTOCOL</td>
+<td>25.1</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Networking services are optional on platforms that do not support
+networking.</p>
+</div>
+</div>
+<div class="section" id="network-boot-protocols">
+<h3>Network Boot Protocols<a class="headerlink" href="#network-boot-protocols" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_PXE_BASE_CODE_PROTOCOL</td>
+<td>24.3</td>
+</tr>
+<tr class="row-odd"><td>EFI_PXE_BASE_CODE_CALLBACK_PROTOCOL</td>
+<td>24.4</td>
+</tr>
+<tr class="row-even"><td>EFI_BIS_PROTOCOL</td>
+<td>24.5</td>
+</tr>
+<tr class="row-odd"><td>EFI_MTFTP4_PROTOCOL</td>
+<td>30.3</td>
+</tr>
+<tr class="row-even"><td>EFI_MTFTP6_PROTOCOL</td>
+<td>30.4</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">EFI_BIS_PROTOCOL is optional on machines that do not support Secure
+Boot.</p>
+</div>
+</div>
+<div class="section" id="ipv4-network-support">
+<h3>IPV4 Network Support<a class="headerlink" href="#ipv4-network-support" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_ARP_PROTOCOL</td>
+<td>29.1</td>
+</tr>
+<tr class="row-odd"><td>EFI_ARP_SERVICE_BINDING_PROTOCOL</td>
+<td>29.1</td>
+</tr>
+<tr class="row-even"><td>EFI_DHCP4_SERVICE_BINDING_PROTOCOL</td>
+<td>29.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_DHCP4_PROTOCOL</td>
+<td>29.2</td>
+</tr>
+<tr class="row-even"><td>EFI_TCP4_PROTOCOL</td>
+<td>28.1.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_TCP4_SERVICE_BINDING_PROTOCOL</td>
+<td>28.1.1</td>
+</tr>
+<tr class="row-even"><td>EFI_IP4_SERVICE_BINDING_PROTOCOL</td>
+<td>28.3.1</td>
+</tr>
+<tr class="row-odd"><td>EFI_IP4_CONFIG2_PROTOCOL</td>
+<td>28.5</td>
+</tr>
+<tr class="row-even"><td>EFI_UDP4_PROTOCOL</td>
+<td>30.1.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_UDP4_SERVICE_BINDING_PROTOCOL</td>
+<td>30.1.1</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Networking services are optional on platforms that do not support
+networking.</p>
+</div>
+</div>
+<div class="section" id="ipv6-network-support">
+<h3>IPV6 Network Support<a class="headerlink" href="#ipv6-network-support" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_DHCP6_PROTOCOL</td>
+<td>29.3.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_DHCP6_SERVICE_BINDING_PROTOCOL</td>
+<td>29.3.1</td>
+</tr>
+<tr class="row-even"><td>EFI_TCP6_PROTOCOL</td>
+<td>28.2.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_TCP6_SERVICE_BINDING_PROTOCOL</td>
+<td>28.2.1</td>
+</tr>
+<tr class="row-even"><td>EFI_IP6_SERVICE_BINDING_PROTOCOL</td>
+<td>28.6.1</td>
+</tr>
+<tr class="row-odd"><td>EFI_IP6_CONFIG_PROTOCOL</td>
+<td>28.7</td>
+</tr>
+<tr class="row-even"><td>EFI_UDP6_PROTOCOL</td>
+<td>30.2.2</td>
+</tr>
+<tr class="row-odd"><td>EFI_UDP6_SERVICE_BINDING_PROTOCOL</td>
+<td>30.2.1</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Networking services are optional on platforms that do not support
+networking.</p>
+</div>
+</div>
+<div class="section" id="vlan-protocols">
+<h3>VLAN Protocols<a class="headerlink" href="#vlan-protocols" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_VLAN_CONFIG_PROTOCOL</td>
+<td>27.1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="iscsi-protocols">
+<h3>iSCSI Protocols<a class="headerlink" href="#iscsi-protocols" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="88%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Service</th>
+<th class="head">UEFI §</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>EFI_ISCSI_INITIATOR_NAME_PROTOCOL</td>
+<td>16.2</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Support for iSCSI is only required on machines that lack persistent
+storage, such as a, HDD. This configuration is intended for thin clients and
+compute-only nodes</p>
+</div>
+<table class="docutils citation" frame="void" id="acpi" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[ACPI]</td><td><a class="reference external" href="http://www.uefi.org/sites/default/files/resources/ACPI%206_2_A_Sept29.pdf">Advanced Configuration and Power Interface specification v6.2A</a>,
+September 2017, <a class="reference external" href="http://www.uefi.org">UEFI Forum</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="dtspec" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[DTSPEC]</td><td><a class="reference external" href="https://github.com/devicetree-org/devicetree-specification/releases/tag/v0.2">Devicetree specification v0.2</a>,
+<a class="reference external" href="https://devicetree.org">Devicetree.org</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="linuxa64boot" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[LINUXA64BOOT]</td><td><a class="reference external" href="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git/tree/Documentation/arm64/booting.txt">Linux Documentation/arm64/booting.txt</a>,
+Linux kernel</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="psci" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[PSCI]</td><td><a class="reference external" href="https://static.docs.arm.com/den0022/c/DEN0022C_Power_State_Coordination_Interface.pdf">Power State Coordination Interface Issue C (PSCI v1.0)</a>
+30 January 2015, <a class="reference external" href="http://arm.com">Arm Limited</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="sbbr" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[SBBR]</td><td><a class="reference external" href="https://static.docs.arm.com/den0044/b/DEN0044B_Server_Base_Boot_Requirements.pdf">Arm Server Base Boot Requirements specification Issue B (v1.0)</a>
+8 March 2016, <a class="reference external" href="http://arm.com">Arm Limited</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[UEFI]</a></td><td><a class="reference external" href="http://www.uefi.org/sites/default/files/resources/UEFI%20Spec%202_7_A%20Sept%206.pdf">Unified Extensable Firmware Interface Specification v2.7A</a>,
+August 2017, <a class="reference external" href="http://www.uefi.org">UEFI Forum</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html#document-index">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018 Arm Limited and Contributors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
